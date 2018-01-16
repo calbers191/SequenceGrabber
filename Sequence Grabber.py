@@ -37,29 +37,29 @@ class getFusionSequenceForm(QDialog):
     def __init__(self, parent=None):
         super(getFusionSequenceForm, self).__init__(parent)
 
-        p1Label = QLabel("5' Fusion Partner:")
-        self.p1Line = QLineEdit()
+        gene1Label = QLabel("5' Fusion Partner:")
+        self.gene1Line = QLineEdit()
 
-        e1Label = QLabel("Exon:")
-        self.e1Line = QLineEdit()
+        exon1Label = QLabel("Exon:")
+        self.exon1Line = QLineEdit()
 
-        p2Label = QLabel("3' Fusion Partner:")
-        self.p2Line = QLineEdit()
+        gene2Label = QLabel("3' Fusion Partner:")
+        self.gene2Line = QLineEdit()
 
-        e2Label = QLabel("Exon:")
-        self.e2Line = QLineEdit()
+        exon2Label = QLabel("Exon:")
+        self.exon2Line = QLineEdit()
 
         self.submitButton = QPushButton("&Submit")
 
         buttonLayout1 = QVBoxLayout()
-        buttonLayout1.addWidget(p1Label)
-        buttonLayout1.addWidget(self.p1Line)
-        buttonLayout1.addWidget(e1Label)
-        buttonLayout1.addWidget(self.e1Line)
-        buttonLayout1.addWidget(p2Label)
-        buttonLayout1.addWidget(self.p2Line)
-        buttonLayout1.addWidget(e2Label)
-        buttonLayout1.addWidget(self.e2Line)
+        buttonLayout1.addWidget(gene1Label)
+        buttonLayout1.addWidget(self.gene1Line)
+        buttonLayout1.addWidget(exon1Label)
+        buttonLayout1.addWidget(self.exon1Line)
+        buttonLayout1.addWidget(gene2Label)
+        buttonLayout1.addWidget(self.gene2Line)
+        buttonLayout1.addWidget(exon2Label)
+        buttonLayout1.addWidget(self.exon2Line)
         buttonLayout1.addWidget(self.submitButton)
 
         self.setLayout(buttonLayout1)
@@ -68,7 +68,22 @@ class getFusionSequenceForm(QDialog):
         self.submitButton.clicked.connect(self.submitFusionPartners)
 
     def submitFusionPartners(self):
-        pass
+        gene1 = self.gene1Line.text()
+        exon1 = self.exon1Line.text()
+        gene2 = self.gene2Line.text()
+        exon2 = self.exon2Line.text()
+
+        if self.transcript1.text() == "":
+            transcript1 = None
+        else:
+            transcript1 = self.transcript1.text()
+        if self.transcript2.text() == "":
+            transcript1 = None
+        else:
+            transcript1 = self.transcript2.text()
+
+
+
 
 class getSeqByCoordForm(QDialog):
     def __init__(self, parent=None):
