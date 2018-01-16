@@ -1,4 +1,3 @@
-import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.uic.properties import QtGui
@@ -39,25 +38,29 @@ class getFusionSequenceForm(QDialog):
 
         gene1Label = QLabel("5' Fusion Partner:")
         self.gene1Line = QLineEdit()
-
+        transcript1Label = QLabel("Transcript ID:")
+        self.transcript1Line = QLineEdit()
         exon1Label = QLabel("Exon:")
         self.exon1Line = QLineEdit()
-
         gene2Label = QLabel("3' Fusion Partner:")
         self.gene2Line = QLineEdit()
-
+        transcript2Label = QLabel("Transcript ID:")
+        self.transcript2Line = QLineEdit()
         exon2Label = QLabel("Exon:")
         self.exon2Line = QLineEdit()
-
         self.submitButton = QPushButton("&Submit")
 
         buttonLayout1 = QVBoxLayout()
         buttonLayout1.addWidget(gene1Label)
         buttonLayout1.addWidget(self.gene1Line)
+        buttonLayout1.addWidget(transcript1Label)
+        buttonLayout1.addWidget(self.transcript1Line)
         buttonLayout1.addWidget(exon1Label)
         buttonLayout1.addWidget(self.exon1Line)
         buttonLayout1.addWidget(gene2Label)
         buttonLayout1.addWidget(self.gene2Line)
+        buttonLayout1.addWidget(transcript2Label)
+        buttonLayout1.addWidget(self.transcript2Line)
         buttonLayout1.addWidget(exon2Label)
         buttonLayout1.addWidget(self.exon2Line)
         buttonLayout1.addWidget(self.submitButton)
@@ -73,16 +76,46 @@ class getFusionSequenceForm(QDialog):
         gene2 = self.gene2Line.text()
         exon2 = self.exon2Line.text()
 
-        if self.transcript1.text() == "":
+        if self.transcript1Line.text() == "":
             transcript1 = None
         else:
-            transcript1 = self.transcript1.text()
-        if self.transcript2.text() == "":
-            transcript1 = None
+            transcript1 = self.transcript1Line.text()
+        if self.transcript2Line.text() == "":
+            transcript2 = None
         else:
-            transcript1 = self.transcript2.text()
+            transcript2 = self.transcript2Line.text()
 
+        exon1ID = get_exon_id(gene1, int(exon1), transcript1)
+        exon2ID = get_exon_id(gene2, int(exon2), transcript2)
 
+        exon1seq = get_sequence(exon1ID)
+        exon2seq = get_sequence(exon2ID)
+
+        # Set filepath for sequence files
+        filepath = os.getcwd() + '\sequences\\'
+
+        # If path doesn't exist yet, create directory
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
+
+        # Name file by chromosome and coordinate
+        filename = gene1 + '_ex' + exon1 + '_' + gene2 + '_ex' + exon2 + '.txt'
+
+        # Open and write to sequence file, close file
+        sequenceFile = open(filepath + filename, 'w')
+        sequenceFile.write(exon1seq + exon2seq)
+        sequenceFile.close()
+
+        # Success message box
+        QMessageBox.information(self, "Success!", "Sequence written to " + filepath)
+
+        # Clear all fields
+        self.gene1Line.clear()
+        self.transcript1Line.clear()
+        self.exon1Line.clear()
+        self.gene2Line.clear()
+        self.transcript2Line.clear()
+        self.exon2Line.clear()
 
 
 class getSeqByCoordForm(QDialog):

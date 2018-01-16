@@ -17,8 +17,12 @@ def get_exon_id(gene, exon, transcript_id):
     r = requests.get(server+ext, headers=headers)
     data = r.json()
     for item in data['Transcript']:
-        if item['id'] == transcript_id:
-            return item['Exon'][exon-1]['id']
+        if transcript_id is not None:
+            if item['id'] == transcript_id:
+                return item['Exon'][exon-1]['id']
+        else:
+            if item['is_canonical'] == 1:
+                return item['Exon'][exon-1]['id']
 
 #get sequence of feature by Ensembl ID
 def get_sequence(sequence_id):
