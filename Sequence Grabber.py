@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.uic.properties import QtGui
 import os
 
-from primer_design import get_surrounding_sequence, get_exon_id, get_sequence
+from primer_design import *
 
 class mainMenu(QWidget):
     def __init__(self, parent=None):
@@ -169,6 +169,10 @@ class getSeqByCoordForm(QDialog):
             sequenceFile = open(filepath + filename, 'w')
             sequenceFile.write(sequence)
             sequenceFile.close()
+
+            primers = Primers(sequence)
+
+            QMessageBox.information(self, "Success!", primers.left_primer_0)
 
             # Success message box
             QMessageBox.information(self, "Success!", "Sequence written to " + filepath)
