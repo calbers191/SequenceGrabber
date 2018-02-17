@@ -1,7 +1,6 @@
-from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
-from PyQt5.uic.properties import QtGui
-import os
+import xlsxwriter
+
 
 from primer_design import *
 
@@ -16,7 +15,7 @@ class mainMenu(QWidget):
         buttonLayout1 = QVBoxLayout()
         buttonLayout1.addWidget(QLabel("What would you like to do?"), 1)
         buttonLayout1.addWidget(self.getSeqByCoordButton, 2)
-        buttonLayout1.addWidget(self.getFusionSequenceButton, 3)
+        #buttonLayout1.addWidget(self.getFusionSequenceButton, 3)
 
         self.getSeqByCoordButton.clicked.connect(self.getSeqByCoord)
         self.getFusionSequenceButton.clicked.connect(self.getFusionSequence)
@@ -26,11 +25,11 @@ class mainMenu(QWidget):
 
     def getSeqByCoord(self):
         form = getSeqByCoordForm()
-        form.exec()
+        form.exec_()
 
     def getFusionSequence(self):
         form = getFusionSequenceForm()
-        form.exec()
+        form.exec_()
 
 class getFusionSequenceForm(QDialog):
     def __init__(self, parent=None):
@@ -163,19 +162,57 @@ class getSeqByCoordForm(QDialog):
                 os.makedirs(filepath)
 
             # Name file by chromosome and coordinate
-            filename = chrom + '_' + coord + '.txt'
+            filename = chrom + '_' + coord + '_primer_report.xlsx'
 
-            # Open and write to sequence file, close file
-            sequenceFile = open(filepath + filename, 'w')
-            sequenceFile.write(sequence)
-            sequenceFile.close()
-
+            # Run Primer3 with surrounding sequence
             primers = Primers(sequence)
 
-            QMessageBox.information(self, "Success!", primers.left_primer_0)
+            # Open and format Excel workbook
+            workbook = xlsxwriter.Workbook(filepath + filename)
+            worksheet = workbook.add_worksheet('Primer Report')
+            worksheet2 = workbook.add_worksheet('Query Sequence')
+            bold = workbook.add_format({'bold': True})
+            align_right = workbook.add_format()
+            align_right.set_align('right')
+
+            # Write primer report to Sheet 1
+            j = 0
+            for i in range(0, 5):
+                worksheet.set_column(0, 0, 14)
+                worksheet.set_column(1, 1, 30)
+                worksheet.set_column(2, 2, 14)
+                worksheet.set_column(3, 3, 30)
+                worksheet.set_column(4, 4, 14)
+
+                worksheet.write(i+j, 0, 'Left Primer ' + str(i+1), bold)
+                worksheet.write(i+j, 1, primers.get_sequence('LEFT', i), align_right)
+                worksheet.write(i+1+j, 0, 'Length', bold)
+                worksheet.write(i+1+j, 1, len(primers.get_sequence('LEFT', i)))
+                worksheet.write(i+2+j, 0, 'TM', bold)
+                worksheet.write(i+2+j, 1, primers.get_tm('LEFT', i))
+                worksheet.write(i+3+j, 0, 'GC percent', bold)
+                worksheet.write(i+3+j, 1, primers.get_gc_percent('LEFT', i))
+
+                worksheet.write(i+j, 2, 'Right Primer ' + str(i + 1), bold)
+                worksheet.write(i+j, 3, primers.get_sequence('RIGHT', i), align_right)
+                worksheet.write(i+1+j, 2, 'Length', bold)
+                worksheet.write(i+1+j, 3, len(primers.get_sequence('RIGHT', i)))
+                worksheet.write(i+2+j, 2, 'TM', bold)
+                worksheet.write(i+2+j, 3, primers.get_tm('RIGHT', i))
+                worksheet.write(i+3+j, 2, 'GC percent', bold)
+                worksheet.write(i+3+j, 3, primers.get_gc_percent('RIGHT', i))
+
+                worksheet.write(i+j, 4, 'Product Size', bold)
+                worksheet.write(i+j, 5, primers.get_product_size(i))
+
+                j += 4
+
+            # Write query sequence to Sheet 2
+            worksheet2.write(0, 0, sequence)
 
             # Success message box
-            QMessageBox.information(self, "Success!", "Sequence written to " + filepath)
+            QMessageBox.information(self, "Success!",
+                                    "Primer report written to " + filepath)
 
             # Clear all fields
             self.chromLine.clear()

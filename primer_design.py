@@ -56,28 +56,30 @@ def reverse_complement(sequence):
         rev_seq = rev_seq + base
     return rev_seq
 
+def get_primers(sequence):
+    primer3.setP3Globals(global_args={'PRIMER_PRODUCT_SIZE_RANGE': [301,450]})
+    primer3out = primer3.bindings.designPrimers(seq_args={'SEQUENCE_TEMPLATE': sequence, 'SEQUENCE_TARGET': [151, 300]})
+    return primer3out
+
 class Primers(object):
     def __init__(self, sequence):
         self.sequence = sequence
 
-        primer3.setP3Globals(global_args={'PRIMER_PRODUCT_SIZE_RANGE': [301,450]})
-        primer3out = primer3.bindings.designPrimers(seq_args={'SEQUENCE_TEMPLATE': self.sequence, 'SEQUENCE_TARGET': [151, 300]})
+        primer3.setP3Globals(global_args={'PRIMER_PRODUCT_SIZE_RANGE': [301, 450]})
 
-        self.left_primer_0 = primer3out['PRIMER_LEFT_0_SEQUENCE']
-        self.left_primer_1 = primer3out['PRIMER_LEFT_1_SEQUENCE']
-        self.left_primer_2 = primer3out['PRIMER_LEFT_2_SEQUENCE']
-        self.left_primer_3 = primer3out['PRIMER_LEFT_3_SEQUENCE']
-        self.left_primer_4 = primer3out['PRIMER_LEFT_4_SEQUENCE']
-        self.right_primer_0 = primer3out['PRIMER_RIGHT_0_SEQUENCE']
-        self.right_primer_1 = primer3out['PRIMER_RIGHT_1_SEQUENCE']
-        self.right_primer_2 = primer3out['PRIMER_RIGHT_2_SEQUENCE']
-        self.right_primer_3 = primer3out['PRIMER_RIGHT_3_SEQUENCE']
-        self.right_primer_4 = primer3out['PRIMER_RIGHT_4_SEQUENCE']
-        self.product_size_0 = primer3out['PRIMER_PAIR_0_PRODUCT_SIZE']
-        self.product_size_1 = primer3out['PRIMER_PAIR_1_PRODUCT_SIZE']
-        self.product_size_2 = primer3out['PRIMER_PAIR_2_PRODUCT_SIZE']
-        self.product_size_3 = primer3out['PRIMER_PAIR_3_PRODUCT_SIZE']
-        self.product_size_4 = primer3out['PRIMER_PAIR_4_PRODUCT_SIZE']
+        self.primer3out = primer3.bindings.designPrimers(seq_args={'SEQUENCE_TEMPLATE': self.sequence, 'SEQUENCE_TARGET': [151, 300]})
+
+    def get_sequence(self, direction, primer_number):
+        return self.primer3out['PRIMER_' + direction + '_' + str(primer_number) + '_SEQUENCE']
+
+    def get_tm(self, direction, primer_number):
+        return self.primer3out['PRIMER_' + direction + '_' + str(primer_number) + '_TM']
+
+    def get_product_size(self, primer_number):
+        return self.primer3out['PRIMER_PAIR_' + str(primer_number) + '_PRODUCT_SIZE']
+
+    def get_gc_percent(self, direction, primer_number):
+        return self.primer3out['PRIMER_' + direction + '_' + str(primer_number) + '_GC_PERCENT']
 
 if __name__ == "__main__":
 
